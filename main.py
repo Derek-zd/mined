@@ -15,13 +15,13 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)-10s    %(levelname)-1
 
 conf = configparser.ConfigParser()
 
-
+#读取minerID
 def readConf_miner():
-    _logger = logging.getLogger("readConf")
+    _logger = logging.getLogger("readConf_miner")
     # 获取当前文件的路径
     root_path = os.path.dirname(os.path.abspath(__file__))
 
-    _logger.info(root_path)
+    #_logger.info(root_path)
 
     if root_path.find('\\') != -1:
         path = root_path + '\config\config.ini'
@@ -32,13 +32,11 @@ def readConf_miner():
     _logger.info("minerID:{}".format(minerID))
     return minerID
 
-
+#读取数据库配置
 def readConf_db():
-    _logger = logging.getLogger("readConf")
+    _logger = logging.getLogger("readConf_db")
     # 获取当前文件的路径
     root_path = os.path.dirname(os.path.abspath(__file__))
-
-    _logger.info(root_path)
 
     if root_path.find('\\') != -1:
         path = root_path + '\config\config.ini'
@@ -55,7 +53,7 @@ def readConf_db():
     db = {'db_host': db_host, 'db_name': db_name, 'db_port': db_port, 'db_user': db_user, 'db_password': db_password}
     return db
 
-
+#截取日志
 def miner_log_cut():
     _logger = logging.getLogger("miner_log_cut")
     root_path = os.path.dirname(os.path.abspath(__file__))
@@ -80,7 +78,7 @@ def miner_log_cut():
         Log_path = root_path + '/miner-log.tmp'
     return log_ptah
 
-
+#获取日志path
 def miner_log():
     _logger = logging.getLogger("miner_log")
     root_path = os.path.dirname(os.path.abspath(__file__))
@@ -91,7 +89,7 @@ def miner_log():
         path = root_path + '/config/config.ini'
     conf.read(path)
     miner_Log_path = conf.get("miner_log", "path")
-    _logger.info("Success")
+    _logger.info(miner_Log_path)
     return miner_Log_path
 
 
@@ -117,10 +115,10 @@ def read_log():
                 _mined = {'mined': new_mined, 'mined_time': new_mined_time,
                           'mined_finished_time': new_mined_finished_time}
                 mined_list.append(_mined)
-    _logger.info("Success")
+    _logger.info("return mined list")
     return mined_list
 
-
+# 导入数据库
 def sql():
     _logger = logging.getLogger("sql")
     db_info = readConf_db()
@@ -132,12 +130,15 @@ def sql():
     _logger.info(cursor)
 
     miner_id = readConf_miner()
+    #获取 出块列表
     minedes = read_log()
+    _logger.info("开始导入数据库")
     for mined in minedes:
         sql = "insert ignore into mined(miner_id, mined_cid, mined_time, mined_finished_time) values ('{}', '{}', '{}', {});".format(miner_id, mined['mined'], mined['mined_time'], mined['mined_finished_time'])
         cursor.execute(sql)
         conn.commit()
         _logger.info(mined['mined'] + "  插入成功")
+    _logger.info("插入{}条数据，导入结束".format(len(minedes)))
     conn.close()
 
 def print_hi(name):
@@ -149,7 +150,6 @@ def print_hi(name):
 if __name__ == '__main__':
     _logger = logging.getLogger("read_log")
     print_hi('Hello,beck!')
-
     sql()
 
 
