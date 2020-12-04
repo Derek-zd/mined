@@ -106,7 +106,7 @@ def read_log():
         for line in lines:
             line1 = line.strip()
             # 获取出块信息
-            if line1.find("mined") != -1:
+            if line1.find("mined new block") != -1:
                 new_mined = line1.split('"')[3].strip()
                 # logger.info("new mined: {}".format(new_mined))
                 new_mined_time = line1.split('+')[0].replace("T", " ").split('.')[0].strip()
